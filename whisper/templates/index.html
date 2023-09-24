@@ -1,0 +1,263 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Speech Recognition</title>
+</head>
+<body>
+    
+    <h1>Real-Time Speech to Text</h1>
+
+<label for="languageSelect">Select Language:</label>
+    <select id="languageSelect">
+        <option value="en-US">English (US)</option>
+        <option value="ar-AR">Arabic (Arab)</option>
+        <option value="fr-FR">French (France)</option>
+    </select>
+    <br><br>
+    <textarea id="transcriptionResult" rows="5" cols="40" readonly></textarea>
+    <br><br>
+    <button id="startStopButton">Start Speaking</button>
+    <br>
+
+    <form id="transcriptionForm" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="text" id="transcriptionInput">
+        <br>
+        <button type="submit" id="saveButton" disabled>Save Transcription</button>
+    </form>
+
+    <script>
+    
+        const startStopButton = document.getElementById('startStopButton');
+        const transcriptionResult = document.getElementById('transcriptionResult');
+        const languageSelect = document.getElementById('languageSelect');
+        const saveButton = document.getElementById('saveButton');
+        let recognition;
+        let isListening = false;
+
+        startStopButton.addEventListener('click', () => {
+            if (!isListening) {
+                // Start listening
+                recognition = new webkitSpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = languageSelect.value; // Set the language to English
+
+                recognition.onstart = () => {
+                    startStopButton.textContent = 'Stop Speaking';
+                    transcriptionResult.value = ''; // Clear previous transcriptions
+                };
+
+                recognition.onresult = async (event) => {
+                    let transcription = '';
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        if (event.results[i].isFinal) {
+                            transcription += event.results[i][0].transcript + ' ';
+                        } else {
+                            transcription += event.results[i][0].transcript;
+                        }
+                    }
+
+                    transcriptionResult.value = transcription;
+                    // Send the transcription to the OpenAI API for correction and enhancement
+                    const correctedTranscription = await enhanceTranscription(transcription);
+                    transcriptionResult.value = correctedTranscription;
+                };
+
+                recognition.onend = () => {
+                    startStopButton.textContent = 'Start Speaking';
+                };
+
+                recognition.onerror = (event) => {
+                    console.error('Speech recognition error:', event.error);
+                };
+
+                recognition.start();
+                isListening = true;
+
+                } else {
+                    // Stop listening
+                    if (recognition) {
+                        recognition.stop();
+                        isListening = false;
+                        saveButton.disabled = false;
+                    }
+                }
+            });
+
+        
+    </script>
+</body>
+</html> -->
+
+<!-- async function enhanceTranscription(transcription) {
+            const apiKey = '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'; // Replace with your OpenAI API key
+            const apiUrl = 'https://api.openai.com/v1/engines/davinci/completions';
+            const prompt =  'correct this and make it more formal : '+ transcription ;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`,
+                    },
+                    body: JSON.stringify({
+                        prompt,
+                        max_tokens: 150, // Adjust the max tokens as needed
+                        temperature: 0.7, // Adjust the temperature as needed
+                    }),
+                });
+
+                const data = await response.json();
+                return data.choices[0].text.trim();
+            } catch (error) {
+                console.error('Error calling OpenAI API:', error);
+                return transcription;
+            }
+        } -->
+
+<!-- speech_recognition_app/templates/speech_recognition_app/index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Speech Recognition</title>
+  </head>
+  <body>
+    <h1>Speech Recognition</h1>
+    <select id="languageSelect">
+      <option value="en-US">English (US)</option>
+      <option value="ar-AR">Arabic (Arab)</option>
+      <option value="fr-FR">French (France)</option>
+    </select>
+    <br /><br />
+    <button id="startButton">Start Recording</button>
+    <button id="stopButton" disabled>Stop Recording</button> <br /><br />
+    <!-- <div id="transcriptionBox"></div>########################################################### -->
+    <textarea id="transcriptionResult" rows="5" cols="40" readonly></textarea>
+    <br /><br />
+    <form id="transcriptionForm" method="post">
+      {% csrf_token %}
+      <input type="hidden" name="text" id="transcriptionInput" />
+      <button type="submit" id="saveButton" disabled>Save Transcription</button>
+    </form>
+
+    <!-- <h1>Real-Time Speech to Text</h1>
+
+    <label for="languageSelect">Select Language:</label>
+    <select id="languageSelect">
+      <option value="en-US">English (US)</option>
+      <option value="ar-AR">Arabic (Arab)</option>
+      <option value="fr-FR">French (France)</option>
+    </select>
+    <br /><br />
+    <textarea id="transcriptionResult" rows="5" cols="40" readonly></textarea>
+    <br /><br />
+    <button id="startStopButton">Start Speaking</button>
+    <br />
+
+    <form id="transcriptionForm" method="post">
+      {% csrf_token %}
+      <input type="hidden" name="text" id="transcriptionInput" />
+      <br />
+      <button type="submit" id="saveButton" disabled>Save Transcription</button>
+    </form> -->
+
+    <script>
+      const startButton = document.getElementById("startButton");
+      const stopButton = document.getElementById("stopButton");
+      const transcriptionBox = document.getElementById("transcriptionResult");
+      const transcriptionInput = document.getElementById("transcriptionInput");
+      const saveButton = document.getElementById("saveButton");
+      const transcriptionForm = document.getElementById("transcriptionForm");
+      const languageSelect = document.getElementById("languageSelect");
+
+      let recognition = new webkitSpeechRecognition(); // Use the Web Speech API
+      let audioChunks = [];
+
+      // Create an AudioContext for audio recording
+      const audioContext = new (window.AudioContext ||
+        window.webkitAudioContext)();
+      let audioStream;
+      let audioRecorder;
+
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = languageSelect.value;
+
+      startButton.addEventListener("click", async () => {
+        console.log(languageSelect.value);
+        // Start audio recording
+        audioChunks = [];
+        audioStream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+        });
+        audioRecorder = new MediaRecorder(audioStream);
+        audioRecorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            audioChunks.push(event.data);
+          }
+        };
+        audioRecorder.start();
+
+        // Start speech recognition
+        recognition.start();
+        startButton.disabled = true;
+        stopButton.disabled = false;
+        saveButton.disabled = true;
+        transcriptionBox.textContent = "";
+      });
+      languageSelect.addEventListener("change", () => {
+        recognition.lang = languageSelect.value; // Update the recognition language
+      });
+
+      stopButton.addEventListener("click", () => {
+        // Stop audio recording
+        audioRecorder.stop();
+        audioStream.getTracks().forEach((track) => track.stop());
+
+        // Stop speech recognition
+        recognition.stop();
+        startButton.disabled = false;
+        stopButton.disabled = true;
+        saveButton.disabled = false;
+      });
+
+      recognition.onresult = (event) => {
+        const result = event.results[event.results.length - 1];
+        const transcript = result[0].transcript;
+        transcriptionBox.textContent = transcript;
+        transcriptionInput.value = transcript;
+      };
+
+      transcriptionForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const formData = new FormData(transcriptionForm);
+
+        // Append the recorded audio to the form data
+        formData.append(
+          "audio_file",
+          new Blob(audioChunks, { type: "audio/wav" }),
+          "recorded_audio.wav"
+        );
+
+        const response = await fetch("/save_transcription/", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          alert(`Transcription saved with ID ${data.id}`);
+          transcriptionBox.textContent = "";
+          transcriptionInput.value = "";
+        } else {
+          alert("Error saving transcription");
+        }
+      });
+    </script>
+  </body>
+</html>
