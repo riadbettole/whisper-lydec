@@ -251,7 +251,7 @@
 
         if (response.ok) {
           const data = await response.json();
-          alert(`Transcription saved with ID ${data.id}`);
+          alert(`${data.id}`);
           transcriptionBox.textContent = "";
           transcriptionInput.value = "";
         } else {

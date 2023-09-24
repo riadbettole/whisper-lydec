@@ -36,7 +36,7 @@ def save_audio(request):
 
         transcript = openai.Audio.transcribe("whisper-1", audio_file)
 
-        system_msg = " here are two transcript of the user, look at the one that makes sense more and do what it asks"
+        system_msg = " here are two transcript of the user, look at the one that makes sense more and do what it asks and JUST ANSWER DIRECTLY"
         user_msg = "first transcript: " + text + "; second transcript: " + transcript.text
         response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
