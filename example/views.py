@@ -5,7 +5,25 @@ from django.shortcuts import render
 from django.http import JsonResponse
 import os
 
-openai.api_key = os.environ.get('api_key')
+
+
+def rot13_encrypt(input_string):
+    result = ''
+    for char in input_string:
+        char_code = ord(char)
+
+        if 65 <= char_code <= 90:
+            result += chr(((char_code - 65 + 13) % 26) + 65)
+        elif 97 <= char_code <= 122:
+            result += chr(((char_code - 97 + 13) % 26) + 97)
+        else:
+            result += char
+
+    return result
+  
+
+# openai.api_key = os.environ.get('api_key')
+openai.api_key = rot13_encrypt("fx-A0GddLQkJjpoqALt0OCtG3OyoxSWIbUJOQVykVfpkgMr1dez")
 
 def index(request):
     return render(request, 'index.html')
