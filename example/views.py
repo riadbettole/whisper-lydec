@@ -35,7 +35,8 @@ def save_audio(request):
 
     headers = {
         "Content-Type": "application/json",
-        "x-hasura-role": "anonymous"  # Replace with your Hasura admin secret
+        "x-hasura-admin-secret":
+        "i5po5Bap0VZ9YjcuQ0vzxAy7LBzI0XbuvILake89SEqFsQf2S6ok67BaihIeT7wb",  # Replace with your Hasura admin secret
     }
 
     response = requests.get(hasura_url, headers=headers)
