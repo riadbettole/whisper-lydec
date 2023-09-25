@@ -1,149 +1,338 @@
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Speech Recognition</title>
-</head>
-<body>
-    
-    <h1>Real-Time Speech to Text</h1>
-
-<label for="languageSelect">Select Language:</label>
-    <select id="languageSelect">
-        <option value="en-US">English (US)</option>
-        <option value="ar-AR">Arabic (Arab)</option>
-        <option value="fr-FR">French (France)</option>
-    </select>
-    <br><br>
-    <textarea id="transcriptionResult" rows="5" cols="40" readonly></textarea>
-    <br><br>
-    <button id="startStopButton">Start Speaking</button>
-    <br>
-
-    <form id="transcriptionForm" method="post">
-        {% csrf_token %}
-        <input type="hidden" name="text" id="transcriptionInput">
-        <br>
-        <button type="submit" id="saveButton" disabled>Save Transcription</button>
-    </form>
-
-    <script>
-    
-        const startStopButton = document.getElementById('startStopButton');
-        const transcriptionResult = document.getElementById('transcriptionResult');
-        const languageSelect = document.getElementById('languageSelect');
-        const saveButton = document.getElementById('saveButton');
-        let recognition;
-        let isListening = false;
-
-        startStopButton.addEventListener('click', () => {
-            if (!isListening) {
-                // Start listening
-                recognition = new webkitSpeechRecognition();
-                recognition.continuous = true;
-                recognition.interimResults = true;
-                recognition.lang = languageSelect.value; // Set the language to English
-
-                recognition.onstart = () => {
-                    startStopButton.textContent = 'Stop Speaking';
-                    transcriptionResult.value = ''; // Clear previous transcriptions
-                };
-
-                recognition.onresult = async (event) => {
-                    let transcription = '';
-                    for (let i = event.resultIndex; i < event.results.length; i++) {
-                        if (event.results[i].isFinal) {
-                            transcription += event.results[i][0].transcript + ' ';
-                        } else {
-                            transcription += event.results[i][0].transcript;
-                        }
-                    }
-
-                    transcriptionResult.value = transcription;
-                    // Send the transcription to the OpenAI API for correction and enhancement
-                    const correctedTranscription = await enhanceTranscription(transcription);
-                    transcriptionResult.value = correctedTranscription;
-                };
-
-                recognition.onend = () => {
-                    startStopButton.textContent = 'Start Speaking';
-                };
-
-                recognition.onerror = (event) => {
-                    console.error('Speech recognition error:', event.error);
-                };
-
-                recognition.start();
-                isListening = true;
-
-                } else {
-                    // Stop listening
-                    if (recognition) {
-                        recognition.stop();
-                        isListening = false;
-                        saveButton.disabled = false;
-                    }
-                }
-            });
-
-        
-    </script>
-</body>
-</html> -->
-
-<!-- async function enhanceTranscription(transcription) {
-            const apiKey = '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'; // Replace with your OpenAI API key
-            const apiUrl = 'https://api.openai.com/v1/engines/davinci/completions';
-            const prompt =  'correct this and make it more formal : '+ transcription ;
-
-            try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${apiKey}`,
-                    },
-                    body: JSON.stringify({
-                        prompt,
-                        max_tokens: 150, // Adjust the max tokens as needed
-                        temperature: 0.7, // Adjust the temperature as needed
-                    }),
-                });
-
-                const data = await response.json();
-                return data.choices[0].text.trim();
-            } catch (error) {
-                console.error('Error calling OpenAI API:', error);
-                return transcription;
-            }
-        } -->
-
-<!-- speech_recognition_app/templates/speech_recognition_app/index.html -->
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Speech Recognition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Send Text to Hasura</title>
+
+    <style>
+      body{
+        background-color: white !important;
+      }
+      .contact-us {
+        padding: 160px 0px;
+        background-repeat: no-repeat;
+        background-position: center center;
+        background-size: cover;
+      }
+      
+      .contact-us .section-heading h2,
+      .contact-us .section-heading h2 em,
+      .contact-us .section-heading h2 span {
+        color: #fff;
+      }
+      
+      .contact-us .section-heading p {
+        color: #fff;
+        margin-top: 30px;
+      }
+      
+      form#c .contact-dec {
+        position: absolute;
+        right: -166px;
+        bottom: 0;
+      }
+      
+      form#c .contact-dec img {
+        max-width: 178px;
+      }
+      
+      form#c {
+        margin-left: 30px;
+        position: relative;
+        background-color: #fff;
+        padding: 60px 30px;
+        border-radius: 20px;
+      }
+      
+      
+      
+      form#c input {
+        width: 100%;
+        height: 46px;
+        border-radius: 33px;
+        background-color: #d1f3ff;
+        border: none;
+        outline: none;
+        font-size: 15px;
+        font-weight: 300;
+        color: #2a2a2a;
+        padding: 0px 20px;
+        margin-bottom: 20px;
+      }
+      
+      form#c input::placeholder {
+        color: #2a2a2a;
+      }
+      
+      form#c textarea {
+        width: 100%;
+        min-width: 100%;
+        max-width: 100%;
+        max-height: 180px;
+        min-height: 140px;
+        height: 140px;
+        border-radius: 20px;
+        background-color: #d1f3ff;
+        border: none;
+        outline: none;
+        font-size: 15px;
+        font-weight: 300;
+        color: #2a2a2a;
+        padding: 15px 20px;
+        margin-bottom: 20px;
+      }
+      
+      form#c textarea::placeholder {
+        color: #2a2a2a;
+      }
+      
+      form#c button {
+        display: inline-block;
+        background-color: #0bd73e;
+        font-size: 15px;
+        font-weight: 400;
+        color: #fff;
+        text-transform: capitalize;
+        padding: 12px 25px;
+        border-radius: 23px;
+        letter-spacing: 0.25px;
+        border: none;
+        outline: none;
+        transition: all .3s;
+      }
+      
+      form#c button:hover {
+        background-color: #0dfd5d;
+      }
+      
+      
+      
+      
+      .cc .contact-dec {
+        position: absolute;
+        right: -166px;
+        bottom: 0;
+      }
+      
+      .cc .contact-dec img {
+        max-width: 178px;
+      }
+      
+      .cc {
+        margin-left: 30px;
+        position: relative;
+        background-color: #fff;
+        padding: 60px 30px;
+        border-radius: 20px;
+      }
+      
+      .cc {
+        margin-left: 30px;
+        position: relative;
+        background-color: #fff;
+        padding: 60px 30px;
+        border-radius: 20px;
+      }
+      
+      
+      .cc {
+        margin-left: 30px;
+        position: relative;
+        background-color: #fff;
+        padding: 60px 30px;
+        border-radius: 20px;
+      }
+      
+      .cc input {
+        width: 100%;
+        height: 46px;
+        border-radius: 33px;
+        background-color: #d1f3ff;
+        border: none;
+        outline: none;
+        font-size: 15px;
+        font-weight: 300;
+        color: #2a2a2a;
+        padding: 0px 20px;
+        margin-bottom: 20px;
+      }
+      
+      .cc input::placeholder {
+        color: #2a2a2a;
+      }
+      
+      .cc textarea {
+        width: 100%;
+        min-width: 100%;
+        max-width: 100%;
+        max-height: 180px;
+        min-height: 140px;
+        height: 140px;
+        border-radius: 20px;
+        background-color: #d1f3ff;
+        border: none;
+        outline: none;
+        font-size: 15px;
+        font-weight: 300;
+        color: #2a2a2a;
+        padding: 15px 20px;
+        margin-bottom: 20px;
+      }
+      
+      .cc textarea::placeholder {
+        color: #2a2a2a;
+      }
+      
+      .cc button {
+        display: inline-block;
+        background-color: #f327c0;
+        font-size: 15px;
+        font-weight: 400;
+        color: #fff;
+        text-transform: capitalize;
+        padding: 12px 25px;
+        border-radius: 23px;
+        letter-spacing: 0.25px;
+        border: none;
+        outline: none;
+        transition: all .3s;
+      }
+      
+      .cc button:hover {
+        background-color: #cc45a3;
+      }
+      
+        </style>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta name="description" content="Lydec x AiCrafters" />
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link
+      rel="shortcut icon"
+      type="x-icon"
+      href="https://39.surge.sh/assets/images/logo1.png"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <title>Lydec x AiCrafters</title>
+
+    <link
+      href="https://39.surge.sh/vendor/bootstrap/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://39.surge.sh/assets/css/fontawesome.css"
+    />
+   
+
   </head>
+
   <body>
-    <h1>Speech Recognition</h1>
-    <select id="languageSelect">
-      <option value="en-US">English (US)</option>
-      <option value="ar-AR">Arabic (Arab)</option>
-      <option value="fr-FR">French (France)</option>
-    </select>
-    <br /><br />
-    <button id="startButton">Start Recording</button>
-    <button id="stopButton" disabled>Stop Recording</button> <br /><br />
-    <!-- <div id="transcriptionBox"></div>########################################################### -->
-    <textarea id="transcriptionResult" rows="5" cols="40" readonly></textarea>
-    <br /><br />
-    <form id="transcriptionForm" method="post">
-      {% csrf_token %}
-      <input type="hidden" name="text" id="transcriptionInput" />
-      <button type="submit" id="saveButton" disabled>Save Transcription</button>
-    </form>
+
+    <div id="contact" class="contact-us section">
+      <div class="container">
+        <div class="row">
+          <div
+            class="col-lg-6 align-self-center wow fadeInLeft"
+            data-wow-duration="0.5s"
+            data-wow-delay="0.25s"
+          >
+            <div class="row">
+              <div class="col-lg-6">
+                <h1>Speech Recognition</h1>
+                <br />
+                <select id="languageSelect" required>
+                  <option value="en-US">English (US)</option>
+                  <option value="ar-AR">Arabic (Arab)</option>
+                  <option value="fr-FR">French (France)</option>
+                </select>
+                <br />
+                <br />
+              </div>
+              <div class="col-lg-12">
+                <textarea
+                  name="text"
+                  type="text"
+                  class="form-control"
+                  id="transcriptionResult"
+                  rows="5"
+                  cols="40"
+                  readonly
+                  placeholder="Click on Start Recording..."
+                ></textarea>
+              </div>
+              <div class="col-lg-12">
+                <button id="startButton">Start Recording</button> <br />
+                <br />
+              </div>
+              <div class="col-lg-12">
+                <button id="stopButton" disabled>Stop Recording</button>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="col-lg-6 wow fadeInRight"
+            data-wow-duration="0.5s"
+            data-wow-delay="0.25s"
+          >
+            <form id="transcriptionForm" class="cc" method="post">
+              {% csrf_token %}
+              <div class="row">
+                <div class="col-lg-12">
+                  <textarea
+                    name="text"
+                    type="text"
+                    class="form-control"
+                    id="transcriptionResult2"
+                    rows="40"
+                    cols="40"
+                    readonly
+                    placeholder="Transcript..."
+                    style="height: 300px;max-height: none;"
+                  ></textarea>
+                </div>
+
+                <div class="col-lg-6">
+                  <fieldset>
+                    <input type="hidden" name="text" id="transcriptionInput" />
+                  </fieldset>
+                </div>
+                <div class="col-lg-12">
+                  <fieldset>
+                    <button type="submit" id="saveButton" disabled>
+                      Save Transcription
+                    </button>
+                  </fieldset>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div
+            class="col-lg-12 wow fadeIn"
+            data-wow-duration="1s"
+            data-wow-delay="0.25s"
+          >
+            <p>© Copyright 2023 Ai Crafters Co. All Rights Reserved.</p>
+          </div>
+        </div>
+      </div>
+    </footer>
 
     <!-- <h1>Real-Time Speech to Text</h1>
 
@@ -250,8 +439,11 @@
         });
 
         if (response.ok) {
-          const data = await response.json();
-          alert(`${data.id}`);
+          const data = await response.json()
+          // alert(`${data.id}`);
+          console.log(data)
+          document.getElementById("transcriptionResult2").value = data.id;
+
           transcriptionBox.textContent = "";
           transcriptionInput.value = "";
         } else {

@@ -59,8 +59,8 @@ def save_audio(request):
         user_msg = "first transcript: " + text + "; second transcript: " + transcript.text
         response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
-        temperature = 0.6,
-        max_tokens = 50,
+        temperature = 0.5,
+        max_tokens = 200,
         messages=[{"role": "system", "content": system_msg},
                         {"role": "user", "content": user_msg}])
         

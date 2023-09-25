@@ -7,7 +7,8 @@
   </head>
   <body>
     <h1>Send Text to Hasura</h1>
-
+    <label for="textData">Old Prompt:</label>
+    <textarea id="hasuraData" rows="4" cols="50" disabled style="resize: none;"></textarea><br /><br />
     <form id="textForm">
       <label for="textData">Enter Prompt:</label>
       <textarea
@@ -20,67 +21,84 @@
       ><br /><br />
 
       <button type="submit">Submit</button>
-        <!-- Green indicator for success -->
-        <div id="successIndicator" style="color: green; display: none;">
-            Data sent successfully!
-          </div>
+      <!-- Green indicator for success -->
+      <div id="successIndicator" style="color: green; display: none">
+        Data sent successfully!
+      </div>
     </form>
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
-      // Add an event listener to the form for when it's submitted
-      document
-        .getElementById("textForm")
-        .addEventListener("submit", function (event) {
-          event.preventDefault(); // Prevent the default form submission
-
-          // Get the text data and custom headers from the input fields
-          const textData = document.getElementById("textData").value;
-
-          // Define the Hasura API URL where you want to send the data
-          const hasuraApiUrl =
-            "https://registergeerd.hasura.app/api/rest/prompt/newprompt/1/" +
-            textData; // Replace with your Hasura API URL
-
-          // Create an object with the data you want to send to Hasura
-          const dataToSend = {
-            text: textData,
-          };
-
-          const config =
-            {
-                "content-type": "application/json",
-                "x-hasura-admin-secret": "i5po5Bap0VZ9YjcuQ0vzxAy7LBzI0XbuvILake89SEqFsQf2S6ok67BaihIeT7wb" ,
-            }
-         ;
-          // Use Axios to send a POST request to the Hasura API with custom headers
-        //   axios
-        //     .post(hasuraApiUrl, dataToSend, config)
-        //     .then(function (response) {
-        //       console.log("Data sent successfully:", {
-        //   headers: {
-        //       'content-type': "application/json",
-        //       'x-hasura-admin-secret': "i5po5Bap0VZ9YjcuQ0vzxAy7LBzI0XbuvILake89SEqFsQf2S6ok67BaihIeT7wb" ,
-        //   },
-        // });
-        const reponse = axios({
-            method: "post",
-          url: `https://registergeerd.hasura.app/api/rest/prompt/newprompt/1/${textData}`,
-          headers: {
-            "Content-Type": "application/json",
-            "x-hasura-admin-secret": "i5po5Bap0VZ9YjcuQ0vzxAy7LBzI0XbuvILake89SEqFsQf2S6ok67BaihIeT7wb" ,
-          },
-          data: {},
-        })
-        document.getElementById("successIndicator").style.display = "block";
-
-              // Handle the response from Hasura here if needed
-            })
-            .catch(function (error) {
-              console.error("Error sending data:", error);
-              // Handle errors here if needed
+        // Add an event listener to the form for when it's submitted
+        document
+          .getElementById("textForm")
+          .addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevent the default form submission
+  
+            // Get the text data and custom headers from the input fields
+            const textData = document.getElementById("textData").value;
+  
+            // Define the Hasura API URL where you want to send the data
+            const hasuraApiUrl =
+              "https://registergeerd.hasura.app/api/rest/prompt/newprompt/1/" +
+              textData; // Replace with your Hasura API URL
+  
+            // Create an object with the data you want to send to Hasura
+            const dataToSend = {
+              text: textData,
+            };
+  
+            const config = {
+              "content-type": "application/json",
+              "x-hasura-admin-secret":
+                "i5po5Bap0VZ9YjcuQ0vzxAy7LBzI0XbuvILake89SEqFsQf2S6ok67BaihIeT7wb",
+            };
+            // Use Axios to send a POST request to the Hasura API with custom headers
+            //   axios
+            //     .post(hasuraApiUrl, dataToSend, config)
+            //     .then(function (response) {
+            //       console.log("Data sent successfully:", {
+            //   headers: {
+            //       'content-type': "application/json",
+            //       'x-hasura-admin-secret': "i5po5Bap0VZ9YjcuQ0vzxAy7LBzI0XbuvILake89SEqFsQf2S6ok67BaihIeT7wb" ,
+            //   },
+            // });
+            const reponse = axios({
+              method: "post",
+              url: `https://registergeerd.hasura.app/api/rest/prompt/newprompt/1/${textData}`,
+              headers: {
+                "Content-Type": "application/json",
+                "x-hasura-admin-secret":
+                  "i5po5Bap0VZ9YjcuQ0vzxAy7LBzI0XbuvILake89SEqFsQf2S6ok67BaihIeT7wb",
+              },
+              data: {},
             });
-   
-    </script>
+            document.getElementById("successIndicator").style.display = "block";
+  
+            // Handle the response from Hasura here if needed
+          })
+       
+  
+          async function fetchDataFromHasura() {
+              try {
+                  // Make a GET request to your Hasura API endpoint using Axios
+                  const response = await axios.get('https://registergeerd.hasura.app/api/rest/getPrompt/1');
+                  const data = response.data;
+  
+                  // Populate the textarea with the received data
+                  const hasuraDataTextarea = document.getElementById('hasuraData');
+                //   const resp = JSON.stringify(data, null, 2)
+                  hasuraDataTextarea.value = data.prompt[0].prompt;
+  
+                  // Disable the textarea
+                  hasuraDataTextarea.disabled = true;
+              } catch (error) {
+                  console.error('Error fetching data from Hasura:', error);
+              }
+          }
+  
+          // Call the fetchDataFromHasura function when the page loads
+          fetchDataFromHasura();
+      </script>
   </body>
 </html>
