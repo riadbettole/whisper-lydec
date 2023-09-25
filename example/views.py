@@ -22,7 +22,7 @@ def rot13_encrypt(input_string):
 
 
 # openai.api_key = os.environ.get('api_key')
-openai.api_key = rot13_encrypt("fx-A0GddLQkJjpoqALt0OCtG3OyoxSWIbUJOQVykVfpkgMr1dez")
+openai.api_key = rot13_encrypt("fx-tRkZ4auwLoAPzS2huTMmG3OyoxSWdcCOwYOIg8o1qwTuncJq")
 
 def index(request):
     return render(request, 'index.html')
@@ -55,12 +55,14 @@ def save_audio(request):
 
         # system_msg = " here are two transcript of the user, look at the one that makes sense more and do what it asks and JUST ANSWER DIRECTLY"
         system_msg = data["prompt"][0]["prompt"]
+        token = data["prompt"][0]["token"]
+        temp = data["prompt"][0]["temp"]
         print(system_msg)
         user_msg = "first transcript: " + text + "; second transcript: " + transcript.text
         response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
-        temperature = 0.5,
-        max_tokens = 200,
+        temperature = temp,
+        max_tokens = token,
         messages=[{"role": "system", "content": system_msg},
                         {"role": "user", "content": user_msg}])
         

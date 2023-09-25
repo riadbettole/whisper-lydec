@@ -18,7 +18,27 @@
         cols="50"
         required
       ></textarea
+      
       ><br /><br />
+
+      <label for="numberBetween0and1">Temperature</label>
+      <input
+        type="number"
+        id="temp"
+        name="numberBetween0and1"
+        step="0.01"  
+        min="0"
+        max="1"
+        required
+      /><br /><br />
+    
+      <!-- Input for an unlimited number -->
+      <label for="unlimitedNumber">Tokens</label>
+      <input
+        type="number"
+        id="token"
+        name="token"
+      /><br /><br />
 
       <button type="submit">Submit</button>
       <!-- Green indicator for success -->
@@ -26,6 +46,20 @@
         Data sent successfully!
       </div>
     </form>
+
+    <footer>
+        <div class="container">
+          <div class="row">
+            <div
+              class="col-lg-12 wow fadeIn"
+              data-wow-duration="1s"
+              data-wow-delay="0.25s"
+            >
+              <div style="display: flex;"><p>AI Crafters 2023 - </p> <a style="padding-top: 15px" href="{% url 'save_audio2' %}">[prompt test]</a></div>
+            </div>
+          </div>
+        </div>
+      </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
@@ -44,9 +78,8 @@
               textData; // Replace with your Hasura API URL
   
             // Create an object with the data you want to send to Hasura
-            const dataToSend = {
-              text: textData,
-            };
+            const token = document.getElementById('token');
+            const  temp = document.getElementById('temp');
   
             const config = {
               "content-type": "application/json",
@@ -65,7 +98,7 @@
             // });
             const reponse = axios({
               method: "post",
-              url: `https://registergeerd.hasura.app/api/rest/prompt/newprompt/1/${textData}`,
+              url: `https://registergeerd.hasura.app/api/rest/prompt/newprompt/1/${token.value}/${temp.value}/${textData}`,
               headers: {
                 "Content-Type": "application/json",
                 "x-hasura-admin-secret":
@@ -82,13 +115,19 @@
           async function fetchDataFromHasura() {
               try {
                   // Make a GET request to your Hasura API endpoint using Axios
-                  const response = await axios.get('https://registergeerd.hasura.app/api/rest/getPrompt/1');
+                  const response = await axios.get('https://registergeerd.hasura.app/api/rest/getPrompt/1',{headers: {
+                "Content-Type": "application/json",
+                "x-hasura-admin-secret":
+                  "i5po5Bap0VZ9YjcuQ0vzxAy7LBzI0XbuvILake89SEqFsQf2S6ok67BaihIeT7wb",
+              },});
                   const data = response.data;
   
                   // Populate the textarea with the received data
                   const hasuraDataTextarea = document.getElementById('hasuraData');
                 //   const resp = JSON.stringify(data, null, 2)
                   hasuraDataTextarea.value = data.prompt[0].prompt;
+                  document.getElementById('temp').value = data.prompt[0].temp;
+                  document.getElementById('token').value = data.prompt[0].token;
   
                   // Disable the textarea
                   hasuraDataTextarea.disabled = true;

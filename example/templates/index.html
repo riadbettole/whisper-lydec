@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Send Text to Hasura</title>
+
 
     <style>
       body{
@@ -209,19 +209,19 @@
       name="viewport"
       content="width=device-width, initial-scale=1, shrink-to-fit=no"
     />
-    <meta name="description" content="Lydec x AiCrafters" />
+
 
     <link rel="preconnect" href="https://fonts.gstatic.com" />
-    <link
+    <!-- <link
       rel="shortcut icon"
       type="x-icon"
       href="https://39.surge.sh/assets/images/logo1.png"
-    />
+    /> -->
     <link
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
       rel="stylesheet"
     />
-    <title>Lydec x AiCrafters</title>
+    <title>AiCrafters</title>
 
     <link
       href="https://39.surge.sh/vendor/bootstrap/css/bootstrap.min.css"
@@ -247,12 +247,12 @@
           >
             <div class="row">
               <div class="col-lg-6">
-                <h1>Speech Recognition</h1>
+                <h1> Recognition de voix</h1>
                 <br />
                 <select id="languageSelect" required>
-                  <option value="en-US">English (US)</option>
-                  <option value="ar-AR">Arabic (Arab)</option>
                   <option value="fr-FR">French (France)</option>
+                  <option value="ar-AR">Arabic (Arab)</option>
+                  <option value="en-US">English (US)</option>
                 </select>
                 <br />
                 <br />
@@ -266,15 +266,17 @@
                   rows="5"
                   cols="40"
                   readonly
-                  placeholder="Click on Start Recording..."
+                  placeholder="Clique pour commencer l'enregistrement..."
                 ></textarea>
               </div>
               <div class="col-lg-12">
-                <button id="startButton">Start Recording</button> <br />
+                <button id="startButton">
+                  Commencer l'enregistrement</button> <br />
                 <br />
               </div>
               <div class="col-lg-12">
-                <button id="stopButton" disabled>Stop Recording</button>
+                <button id="stopButton" disabled>
+                  Arreter l'enregistrement</button>
               </div>
             </div>
           </div>
@@ -308,8 +310,8 @@
                 </div>
                 <div class="col-lg-12">
                   <fieldset>
-                    <button type="submit" id="saveButton" disabled>
-                      Save Transcription
+                    <button type="submit" style="background-color: blue;" id="saveButton" disabled>
+                      Enregistrer
                     </button>
                   </fieldset>
                 </div>
@@ -328,7 +330,7 @@
             data-wow-duration="1s"
             data-wow-delay="0.25s"
           >
-            <p>© Copyright 2023 Ai Crafters Co. All Rights Reserved.</p>
+          <div style="display: flex;"> <p>AI Crafters 2023 - </p> <a href="{% url 'admin_lydec' %}">[prompt admin]</a> </div>
           </div>
         </div>
       </div>
